@@ -1,0 +1,42 @@
+E1 - T1 : Kp = 1.5 , Ki = 0.0,Kd = 0.4 
+Results: 
+=== Key Performance Indicators ===
+Maximum Overshoot: 200.00 cm
+Settling Time (5%): 6.01s
+Steady-State Error: 0.0001 cm
+Current Error: 0.0000 cm
+
+E1-T2 : kp = 0.8, ki = 0.0, kd = 0.2
+Maximum Overshoot: 199.99 cm
+Settling Time (5%): 6.21s
+Steady-State Error: 0.0110 cm
+Current Error: 0.0144 cm
+
+E1-T3 :  kp = 2.5, ki = 0.1, kd = 0.6
+=== Key Performance Indicators ===
+Maximum Overshoot: 199.78 cm
+Settling Time (5%): 7.01s
+Steady-State Error: 0.2239 cm
+Current Error: 0.2154 cm
+
+E1-T4 : kp = 1.2, ki = 0.0, kd = 0.8
+======================== Key Performance Indicators ========================
+Maximum Overshoot: 200.00 cm
+Settling Time (5%): 5.31s
+Steady-State Error: 0.0001 cm
+Current Error: 0.0000 cm
+---------------
+
+E3 T1 std = 0.02 
+======================== Key Performance Indicators ========================
+Maximum Overshoot: 197.45 cm
+Settling Time (5%): 5.91s
+Steady-State Error: 2.5506 cm
+Current Error: 0.9363 cm
+
+E3 T2 std = 0.08
+Maximum Overshoot: 191.08 cm
+Settling Time (5%): 47.11s
+Steady-State Error: 8.9246 cm
+Current Error: 6.2914 cm
+

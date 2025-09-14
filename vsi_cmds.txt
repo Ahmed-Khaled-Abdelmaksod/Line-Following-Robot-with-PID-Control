@@ -1,0 +1,39 @@
+add component -type Python -name PID
+add port -componentName PID -name PID -gateway python2DtEthernet
+add component -type Python -name sim_env
+add port -componentName sim_env -name sim_env -gateway python2DtEthernet
+add component -type Python -name visualizer
+add port -componentName visualizer -name visualizer -gateway python2DtEthernet
+config port -componentName PID -portName PID -macAddress 12:34:56:78:9A:BC -ipAddress 192.168.1.1
+config port -componentName sim_env -portName sim_env -macAddress 12:34:56:78:9A:BD -ipAddress 192.168.1.2
+config port -componentName visualizer -portName visualizer -macAddress 12:34:56:78:9A:BE -ipAddress 192.168.1.3
+define componentSignals -componentName PID -signals [x:double:input,y:double:input,theta:double:input,v:double:output,omega:double:output]
+
+define componentSignals -componentName sim_env -signals [v:double:input,omega:double:input,x:double:output,y:double:output,theta:double:output]
+define componentSignals -componentName visualizer -signals [x:double:input,y:double:input,theta:double:input]
+
+
+add portSocket -componentName PID -portName PID -ipPortNum 8070 -socketType server -protocol tcpIp
+
+add portSocket -componentName sim_env -portName sim_env -ipPortNum 8070 -socketType client -protocol tcpIp
+
+add portSocket -componentName sim_env -portName sim_env -ipPortNum 8071 -socketType server -protocol tcpIp
+
+add portSocket -componentName visualizer -portName visualizer -ipPortNum 8071 -socketType client -protocol tcpIp
+
+connect signals -sourceSignal PID.v -destSignal sim_env.v -sourcePortName PID -destPortName sim_env
+connect signals -sourceSignal PID.omega -destSignal sim_env.omega -sourcePortName PID -destPortName sim_env
+
+connect signals -sourceSignal sim_env.x -destSignal PID.x -sourcePortName sim_env -destPortName PID
+connect signals -sourceSignal sim_env.y -destSignal PID.y -sourcePortName sim_env -destPortName PID
+connect signals -sourceSignal sim_env.theta -destSignal PID.theta -sourcePortName sim_env -destPortName PID
+
+connect signals -sourceSignal sim_env.x -destSignal visualizer.x -sourcePortName sim_env -destPortName visualizer
+connect signals -sourceSignal sim_env.y -destSignal visualizer.y -sourcePortName sim_env -destPortName visualizer
+connect signals -sourceSignal sim_env.theta -destSignal visualizer.theta -sourcePortName sim_env -destPortName visualizer
+
+set digitalTwinName lineFollwerRobot
+set workspaceDir .
+set simulationStep 0.1 s
+set totalSimTime 60 s
+generate

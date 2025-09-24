@@ -1,6 +1,6 @@
 # Line-Following Robot with PID Control
 
-A simulation of a differential-drive robot that follows a predefined path using PID control. This project implements a digital twin of a line-following robot with a modular architecture using the Innexis Virtual System Interconnect (IVSI).
+A Siemens collaborative project implementing a digital twin of a differential-drive robot that follows predefined paths using PID control. Developed as part of the Siemens Digital Twin & Its Applications framework, this project demonstrates industrial automation principles with both standalone and Siemens VSI-integrated architectures.
 
 ## 📁 Project Structure
 

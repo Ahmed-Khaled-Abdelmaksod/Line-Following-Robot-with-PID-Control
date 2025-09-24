@@ -4,7 +4,6 @@ import struct
 import sys
 import argparse
 import math
-
 PythonGateways = 'pythonGateways/'
 sys.path.append(PythonGateways)
 
@@ -131,10 +130,8 @@ class Sim_env:
 				receivedData = vsiEthernetPythonGateway.recvEthernetPacket(PIDSocketPortNumber0)
 				if(receivedData[3] != 0):
 					self.decapsulateReceivedData(receivedData)
-				
 
 				receivedData = vsiEthernetPythonGateway.recvEthernetPacket(self.clientPortNum[Visualizer1])
-				# print(receivedData)
 				if(receivedData[3] != 0):
 					self.decapsulateReceivedData(receivedData)
 
@@ -144,15 +141,14 @@ class Sim_env:
 				last_update_time = current_time
 
 				if dt <= 0:
-					dt = 0.05
+					dt = 0.01
 
 				sim.update(self.mySignals.v, self.mySignals.omega, dt)
 
-				x_new, y_new, theta_new = sim.get_pose(with_noise=True)
+				x_new, y_new, theta_new = sim.get_pose(with_noise=False)
 				self.mySignals.x = x_new
 				self.mySignals.y = y_new
 				self.mySignals.theta = theta_new
-				print(f"x:${x_new},y:${y_new},theta:${theta_new}")
 				# End of user custom code region. Please don't edit beyond this point.
 
 				#Send ethernet packet to PID

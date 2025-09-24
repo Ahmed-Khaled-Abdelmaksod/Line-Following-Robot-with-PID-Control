@@ -39,15 +39,15 @@ import numpy as np
 class VisualizerPlot:
     def __init__(self):
         self.fig, self.ax = plt.subplots(figsize=(10, 6))
-        self.ax.set_xlim(-5, 300)  # Adjust based on your expected path
-        self.ax.set_ylim(-1, 4)
+        self.ax.set_xlim(-1, 100)  # Adjust based on your expected path
+        self.ax.set_ylim(-3, 3)
         self.ax.set_title('Line Following Robot Simulation (VSI)')
         self.ax.set_xlabel('X position (m)')
         self.ax.set_ylabel('Y position (m)')
         self.ax.grid(True)
         
         # Draw the reference path (simple horizontal line at y=0)
-        self.ax.axhline(y=2, color='r', linestyle='--', label='Reference Path (y=0)')
+        self.ax.axhline(y=0, color='r', linestyle='--', label='Reference Path (y=0)')
         
         # Initialize robot trajectory and current position
         self.trajectory_line, = self.ax.plot([], [], 'b-', label='Robot Path')
@@ -57,113 +57,20 @@ class VisualizerPlot:
         # Data containers
         self.x_data = []
         self.y_data = []
-
-		# track KPIs
-        # KPI tracking - FIXED VERSION
-        self.errors = []  # Track lateral errors over time
-        self.times = []   # Track simulation times in seconds
-        self.max_error = 0
-        self.settling_time = None
-        self.steady_state_error = None
-        self.overshoot = 0
-        self.settling_detected = False
         
-        # Reference value
-        self.reference_y = 2
-        self.settling_threshold = 0.05  # 5% threshold for settling
-        
-    def update_plot(self, x, y,time_ns):
-		# Convert time to seconds
-        time_s = time_ns / 1e9
-        
-        # Calculate current error
-        current_error = abs(y - self.reference_y)
-        
-        # Store data for KPI calculation
-        self.errors.append(current_error)
-        self.times.append(time_s)
-        if current_error > self.max_error:
-            self.max_error = current_error
-		############
+    def update_plot(self, x, y):
         self.x_data.append(x)
         self.y_data.append(y)
         self.trajectory_line.set_data(self.x_data, self.y_data)
         self.current_pos.set_data([x], [y])
-		##########
-		# Calculate KPIs if we have enough data
-        if len(self.errors) > 10:
-            self.calculate_kpis()
-		
-
         return self.trajectory_line, self.current_pos
-    
-    def calculate_kpis(self):
-	# Calculate steady-state error (average of last 20% of data points)
-        # Only calculate once we have sufficient data
-        if len(self.errors) < 10:
-            return
-    
-    # Calculate current steady-state error (moving average of recent errors)
-        window_size = min(20, len(self.errors) // 4)  # Use 20 samples or 25% of data
-        recent_errors = self.errors[-window_size:]
-        current_ss_error = np.mean(recent_errors)
-    
-    # Update steady-state error if we have a reasonable value
-        if current_ss_error > 1e-6:  # Ignore extremely small values
-            self.steady_state_error = current_ss_error
-    
-    # Calculate overshoot in centimeters (not percentage!)
-        if self.max_error > 0 and self.steady_state_error is not None:
-        # Convert to centimeters: meters * 100
-
-            self.overshoot = (self.max_error - self.steady_state_error) * 100  # cm
-    
-    # Detect settling time (only once)
-        if not self.settling_detected and self.steady_state_error is not None:
-            threshold = self.steady_state_error * (1 + self.settling_threshold)
         
-        # Check if we've been within threshold for a while
-            if len(self.errors) >= 30:  # Need enough data to check
-                recent_errors = self.errors[-30:]
-                if all(error <= threshold for error in recent_errors[-10:]):  # Last 10 samples
-                # Find when settling first occurred
-                    for i, error in enumerate(self.errors):
-                        if error <= threshold:
-                        # Check if it stayed within threshold
-                            if all(e <= threshold for e in self.errors[i:i+10]):
-                                self.settling_time = self.times[i]
-                                self.settling_detected = True
-                                break
-
-
-
-    def print_kpis(self):
-        if len(self.times) % 50 != 0:  # Print every 50 samples
-            return
-		
-        print("\n======================== Key Performance Indicators ========================")
-        print(f"Maximum Overshoot: {self.overshoot:.2f} cm")
-		
-        if self.settling_time is not None:
-            print(f"Settling Time (5%): {self.settling_time:.2f}s")
-        else:
-            print(f"Settling Time (5%): Not yet settled")
-		
-        if self.steady_state_error is not None:
-            print(f"Steady-State Error: {self.steady_state_error * 100:.4f} cm")  # Convert to cm
-        else:
-            print(f"Steady-State Error: Calculating...")
-		
-        print(f"Current Error: {self.errors[-1] * 100:.4f} cm")  # Current error in cm
-        print("================================")
-
-
     def show(self):
         plt.show()
 
-
+# Initialize the visualizer
 viz = VisualizerPlot()
-plt.ion()  # Turn on interactive mode
+plt.ion()  # Turn on interactive mode for real-time plotting
 # End of user custom code region. Please don't edit beyond this point.
 class Visualizer:
 
@@ -232,18 +139,8 @@ class Visualizer:
 					self.decapsulateReceivedData(receivedData)
 
 				# Start of user custom code region. Please apply edits only within these regions:  Before sending the packet
-				# In your main loop, replace the printing call:
-				try:
-					current_time = vsiCommonPythonApi.getSimulationTimeInNs()
-					viz.update_plot(self.mySignals.x, self.mySignals.y, current_time)
-					
-					# Print KPIs less frequently to avoid spam
-					if int(current_time / 1e9) % 2 == 0:  # Print every 2 seconds
-						viz.print_kpis()
-						
-					plt.pause(0.01)
-				except Exception as e:
-					print(f"Plotting error: {e}")
+				viz.update_plot(self.mySignals.x, self.mySignals.y)
+				plt.pause(0.01)  # Needed to update the plot in real-time
 				# End of user custom code region. Please don't edit beyond this point.
 
 				# Start of user custom code region. Please apply edits only within these regions:  After sending the packet
@@ -293,10 +190,6 @@ class Visualizer:
 			# Advance time with a step that is equal to "simulationStep + 1" so that all other clients
 			# receive the terminate packet before terminating this client
 			vsiCommonPythonApi.advanceSimulation(self.simulationStep + 1)
-		print("\n" + "="*60)
-		print("FINAL PERFORMANCE RESULTS")
-		print("="*60)
-		viz.print_kpis()
 
 
 

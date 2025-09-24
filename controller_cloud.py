@@ -65,7 +65,7 @@ class PIDController:
         out = P + I + D
         return out
 pid = PIDController(kp = 1.5 , ki = 0.0,kd = 0.4)
-v_cmd = 2.5  # Constant forward speed
+v_cmd = 0.5  # Constant forward speed
 # End of user custom code region. Please don't edit beyond this point.
 class PID:
 
@@ -114,7 +114,7 @@ class PID:
 			while(vsiCommonPythonApi.getSimulationTimeInNs() < self.totalSimulationTime):
 
 				# Start of user custom code region. Please apply edits only within these regions:  Inside the while loop
-
+				
 				# End of user custom code region. Please don't edit beyond this point.
 
 				self.updateInternalVariables()
@@ -141,12 +141,11 @@ class PID:
 				dt = current_time - last_time
 				last_time = current_time
 				if dt <= 0:
-					dt = 0.05  # Avoid division by zero or negative time
-				omega_cmd = - pid.update(lateral_error, dt)
+					dt = 0.01  # Avoid division by zero or negative time
+				omega_cmd = -pid.update(lateral_error, dt)
 				self.mySignals.v = v_cmd
 				self.mySignals.omega = omega_cmd
-				print(f"In: X:${self.mySignals.x},y: ${self.mySignals.y}")
-				print(f"OUT:V: ${v_cmd},omega: ${omega_cmd}")
+				print("V: "+str(v_cmd))
 				# End of user custom code region. Please don't edit beyond this point.
 
 				#Send ethernet packet to sim_env
